@@ -1,0 +1,69 @@
+{
+  "operations": [
+    {
+      "Date": "2023-11-14",
+      "Bot": "Pro Alert",
+      "Market": "BTCUSDT",
+      "Quantity": 0.01,
+      "Open Price": 20000,
+      "Close Price": 20500,
+      "Close Reason": "Sell Signal",
+      "Price Difference": 500,
+      "Price Difference Percentage": 2.5,
+      "Result": 50,
+      "Final Balance": 150
+    },
+    {
+      "Date": "2023-11-15",
+      "Market": "DOTUSDT",
+      "Quantity": 10,
+      "Open Price": 10,
+      "Close Price": 9.5,
+      "Close Reason": "Stop Loss",
+      "Price Difference": -0.5,
+      "Price Difference Percentage": -5,
+      "Result": -5,
+      "Final Balance": 145,
+      "Bot": "Moving Average Strategy"
+    },
+    {
+      "Date": "2023-11-16",
+      "Market": "ADAUSDT",
+      "Quantity": 50,
+      "Open Price": 0.5,
+      "Close Price": 0.55,
+      "Close Reason": "Sell Signal",
+      "Price Difference": 0.05,
+      "Price Difference Percentage": 10,
+      "Result": 2.5,
+      "Final Balance": 147.5,
+      "Bot": "Trend Follower"
+    },
+    {
+      "Date": "2023-11-17",
+      "Market": "ETHUSDT",
+      "Quantity": 0.1,
+      "Open Price": 1500,
+      "Close Price": 1450,
+      "Close Reason": "Stop Loss",
+      "Price Difference": -50,
+      "Price Difference Percentage": -3.33,
+      "Result": -5,
+      "Final Balance": 142.5,
+      "Bot": "Algorithmic Scalping"
+    },
+    {
+      "Date": "2023-11-18",
+      "Market": "XRPUSDT",
+      "Quantity": 100,
+      "Open Price": 0.3,
+      "Close Price": 0.32,
+      "Close Reason": "Sell Signal",
+      "Price Difference": 0.02,
+      "Price Difference Percentage": 6.67,
+      "Result": 2,
+      "Final Balance": 144.5,
+      "Bot": "Volume Analysis"
+    }
+  ]
+}

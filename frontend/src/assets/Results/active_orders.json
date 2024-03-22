@@ -1,0 +1,45 @@
+{
+    "operations": [
+      {
+        "Date": "2023-11-14",
+        "Market": "BTCUSDT",
+        "Quantity": 0.01,
+        "Open Price": 20000,
+        "Actual Price": 1515,
+        "Bot": "Pro Alert"
+      },
+      {
+        "Date": "2023-11-15",
+        "Market": "DOTUSDT",
+        "Quantity": 10,
+        "Open Price": 10,
+        "Actual Price": 1515,
+        "Bot": "Moving Average Strategy"
+      },
+      {
+        "Date": "2023-11-16",
+        "Market": "ADAUSDT",
+        "Quantity": 50,
+        "Open Price": 0.5,
+        "Actual Price": 1515,
+        "Bot": "Trend Follower"
+      },
+      {
+        "Date": "2023-11-17",
+        "Market": "ETHUSDT",
+        "Quantity": 0.1,
+        "Open Price": 1500,
+        "Actual Price": 1515,
+        "Bot": "Algorithmic Scalping"
+      },
+      {
+        "Date": "2023-11-18",
+        "Market": "XRPUSDT",
+        "Quantity": 100,
+        "Open Price": 0.3,
+        "Actual Price": 0.27,
+        "Bot": "Volume Analysis"
+      }
+    ]
+  }
+  

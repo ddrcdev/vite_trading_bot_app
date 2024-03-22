@@ -1,0 +1,73 @@
+
+#root {
+  min-width: 100%;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.App {
+  background-color: #3d3c3c;
+  min-height: 100vh ;
+  border-radius: 0.5rem;
+
+}
+
+.appBar{
+  color: white;
+  background-color: #302d2d;
+}
+
+.App-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 8px; /* o cualquier otro valor deseado */
+}
+
+.icon {
+  margin-right: 8px; /* o cualquier otro valor deseado */
+}
+
+.card-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  margin-left: auto; /* Alinea el margen izquierdo automáticamente */
+  margin-right: auto; /* Alinea el margen derecho automáticamente */
+  margin-top: 1%; /* Alinea el margen derecho automáticamente */
+}
+
+.grid-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  margin-left: auto; /* Alinea el margen izquierdo automáticamente */
+  margin-right: auto; /* Alinea el margen derecho automáticamente */
+  margin-top: 1%; /* Alinea el margen derecho automáticamente */
+}
+
+.tradingv-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  min-height: 100%;
+  margin-left: auto; /* Alinea el margen izquierdo automáticamente */
+  margin-right: auto; /* Alinea el margen derecho automáticamente */
+}
+
+.topo {
+  margin-top: 1%;
+  color: bisque;
+}

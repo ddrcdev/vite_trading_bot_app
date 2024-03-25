@@ -1,5 +1,5 @@
 import React,{ useState, useEffect } from 'react';
-import { Grid, Card, CardContent } from '@mui/material';
+import { Grid, Card, CardContent, Typography } from '@mui/material';
 import ResultCard from '../components/ResultCard';
 import OrdersTable from '../components/OrdersTable';
 import globalResultsData from '../assets/Results/global_results.json';
@@ -14,7 +14,7 @@ function Strategies() {
       // Cargar los datos del archivo JSON cuando el componente se monta
         const fetchTrades = async () => {
         try {
-          const response = await fetch('http://localhost:5000/api/getops'); // Hacer una solicitud a la API REST en el servidor backend
+          const response = await fetch('http://localhost:5000/api/get/trades'); // Hacer una solicitud a la API REST en el servidor backend
           const dataFromDB = await response.json();
           setOperations(dataFromDB);
         } catch (error) {
@@ -28,7 +28,7 @@ function Strategies() {
       // Cargar los datos del archivo JSON cuando el componente se monta
         const fetchBalance = async () => {
         try {
-          const response = await fetch('http://localhost:5000/api/getbalance'); // Hacer una solicitud a la API REST en el servidor backend
+          const response = await fetch('http://localhost:5000/api/get/balance'); // Hacer una solicitud a la API REST en el servidor backend
           const dataFromDB = await response.json();
           console.log(dataFromDB);
           setBalance(dataFromDB);
@@ -76,6 +76,11 @@ function Strategies() {
                   </Grid>
               ))}
           </Grid>
+      </div>
+      <div className = 'topo'>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          All Trades
+        </Typography>
       </div>
       <div className='grid-container'>
               <Grid container spacing={3}>

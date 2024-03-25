@@ -44,16 +44,41 @@ def create_random_data(cur):
         
         data.append((oDate, cDate, status, bot, market, USDT, Asset, Open, Close, Reason, Diff, Diff_percentage, Profit))
 
-    df = pd.DataFrame(data, columns=['oDate', 'cDate', 'status', 'Bot', 'Market', 'USDT', 'Asset', 'Open', 'Close', 'Reason', 'Diff', 'Diff_percentage', 'Profit'])
-    # Generar y ordenar los datos aleatorios
-    df = df.sort_values(by='oDate')
+    df_closed = pd.DataFrame(data, columns=['oDate', 'cDate', 'status', 'Bot', 'Market', 'USDT', 'Asset', 'Open', 'Close', 'Reason', 'Diff', 'Diff_percentage', 'Profit'])
+    # Ordenar DataFrame por fecha de apertura
+    df_closed = df_closed.sort_values(by='oDate')
 
     # Insertar los datos en la base de datos
-    for _, row in df.iterrows():
+    for _, row in df_closed.iterrows():
         cur.execute("""
             INSERT INTO trades (oDate, cDate, status, Bot, Market, USDT, Asset, Open, Close, Reason, Diff, Diff_percentage, Profit)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, row)
+
+    # Agregar 5 registros al final con status 'Open' para 3 bots distintos
+    df_open = pd.DataFrame(columns=df_closed.columns)
+    for _ in range(5):
+        bot = random.choice(list(set(bots) - set(["Bot"])))  # Escoger un bot distinto a "Bot" si es posible
+        oDate = datetime.now() - timedelta(days=random.randint(0, 10))
+        status = "Open"
+        Open = random.uniform(15000, 25000)
+        USDT = random.uniform(1, 10)
+        Asset = random.uniform(0.01, 0.1)
+        
+        df_open = df_open.append({'oDate': oDate, 'status': status, 'Bot': bot, 'Market': market, 'USDT': USDT, 'Asset': Asset,'Open': Open}, ignore_index=True)
+
+    # Ordenar DataFrame por fecha de apertura
+    df_open = df_open.sort_values(by='oDate')
+    df_open = df_open.dropna(axis=1)
+
+        # Insertar los datos en la base de datos
+    for _, row in df_open.iterrows():
+        cur.execute("""
+            INSERT INTO trades (oDate, status, Bot, Market, USDT, Asset, Open)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """, row)
+    
+
 
 
 def trades_table(cur):
@@ -88,11 +113,13 @@ def balance_table(cur):
         );
     """)
 
-    # Insertar el primer registro en la tabla de balance como punto de inicio
-    insert_initial_balance_query = """
-    INSERT INTO Balance (trade_id, cdate, profit, balance_final) VALUES (0, CURRENT_TIMESTAMP,0, 100);
-    """
-    cur.execute(insert_initial_balance_query)
+
+    # Formatear la fecha como un string en el formato de timestamp de PostgreSQL
+    fecha_1900_str = datetime(1900,4,19)
+    cur.execute("""
+    INSERT INTO Balance (trade_id, cdate, profit, balance_final)
+    VALUES (0, %s, 0, 100);
+    """, (fecha_1900_str,))
 
 
 def close_trade_trigger(cur):
@@ -104,17 +131,18 @@ def close_trade_trigger(cur):
         update_balance NUMERIC;
         last_trade_id NUMERIC;
     BEGIN
-        -- Obtener el último valor de balance_finalD
-        SELECT INTO last_trade_id MAX(trade_id) FROM balance;
-        SELECT INTO prev_balance balance_final FROM balance WHERE trade_id = last_trade_id;
+        IF NEW.status = 'Closed' THEN
+            -- Obtener el último valor de balance_finalD
+            SELECT INTO last_trade_id MAX(trade_id) FROM balance;
+            SELECT INTO prev_balance balance_final FROM balance WHERE trade_id = last_trade_id;
 
-        -- Calcular el nuevo balance_final
-        update_balance := prev_balance + NEW.profit;
+            -- Calcular el nuevo balance_final
+            update_balance := prev_balance + NEW.profit;
 
-        -- Insertar el nuevo registro en la tabla balance
-        INSERT INTO balance (trade_id, cdate, profit, balance_final)
-        VALUES (NEW.trade_id, NEW.cdate, NEW.profit, update_balance);
-
+            -- Insertar el nuevo registro en la tabla balance
+            INSERT INTO balance (trade_id, cdate, profit, balance_final)
+            VALUES (NEW.trade_id, NEW.cdate, NEW.profit, update_balance);
+        END IF;
         RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;

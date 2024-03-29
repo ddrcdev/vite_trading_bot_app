@@ -1,14 +1,15 @@
 import React from 'react';
 import { Card, CardContent, Grid, Typography } from '@mui/material';
 
-function BotResumeCard({ title, mainNumber, numbers }) {
+function BotResumeCard({ mainNumber, numbers }) {
+  const text = ['Active Ops:','Winner Ops:','Looser Ops:'  ]
   return (
     <Card>
       <CardContent>
         <Grid container spacing={1}>
           <Grid item xs={6}>
-            <Typography variant="h5" style={{ color: 'black' }}>{title}</Typography>
-            <Typography variant="h6" style={{ color: 'black' }}>{mainNumber}</Typography>
+            <Typography variant="h4" style={{ color: 'black' }}>{'Active Trades'}</Typography>
+            <Typography variant="h4" style={{ color: 'black' }}>{mainNumber}</Typography>
           </Grid>
           <Grid item xs={6}>
             {numbers.map((item, index) => {
@@ -21,8 +22,8 @@ function BotResumeCard({ title, mainNumber, numbers }) {
                 color = 'red'; // Tercer elemento en rojo
               }
               return (
-                <Typography key={index} variant="h6" style={{ color }}>
-                  {item.text} {item.number}
+                <Typography key={index} variant="h5" style={{ color }}>
+                  {text[index]} {item.number}
                 </Typography>
               );
             })}

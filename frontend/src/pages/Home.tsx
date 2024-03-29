@@ -3,9 +3,9 @@ import { Grid, Card, CardContent, Typography } from '@mui/material';
 import BalanceCard from '../components/Cards/BalanceCard'
 import BotResumeCard from '../components/Cards/BotResumeCard'
 import OrdersTable from '../components/OrdersTable';
-import MarketBar from '../components/MarketTab'; // Importa el componente MarketBar
-import TradingViewWidget from '../components/TradingViewWidget'; // Importa el componente TradingViewWidget
-import MarketCapWidget from '../components/MarketCapWidget'
+import MarketBar from '../components/TradeView/MarketTab'; // Importa el componente MarketBar
+import TradingViewWidget from '../components/TradeView/TradingViewWidget'; // Importa el componente TradingViewWidget
+import MarketCapWidget from '../components/TradeView/MarketCapWidget'
 import '../App.css';
 
 function Home() {
@@ -128,8 +128,6 @@ function Home() {
     const totalVariation = currentBalance - firstBalance;
     const totalVariationPercentage = (totalVariation / firstBalance) * 100;
 
-    console.log(balanceDifs)
-
     setBalanceDifs([variationLastWeek,variationLastMonth,totalVariation])
     setBalanceDifsPer([variationLastWeekPercentage,variationLastMonthPercentage,totalVariationPercentage])
     }, [balanceData]);
@@ -147,22 +145,20 @@ function Home() {
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <BalanceCard
-              title={'Balance'}
               mainNumber={balance}
               numbers={[
-                { number_usd: balanceDifs[0], number_per: balanceDifsPer[0], text: 'Last 7D:' },
-                { number_usd: balanceDifs[1], number_per: balanceDifsPer[1],text: 'Last 30D:' },
-                { number_usd: balanceDifs[2], number_per: balanceDifsPer[2],text: 'All ops:' }
+                { number_usd: balanceDifs[0], number_per: balanceDifsPer[0]},
+                { number_usd: balanceDifs[1], number_per: balanceDifsPer[1]},
+                { number_usd: balanceDifs[2], number_per: balanceDifsPer[2]}
               ]} />
         </Grid>
         <Grid item xs={6}>
           <BotResumeCard
-            title={'Active Bots'}
-            mainNumber={activeBots}
+            mainNumber={activeOps}
             numbers={[
-              { number: activeOps, text: 'Active Ops:' },
-              { number: winnerOps, text: 'Winner Ops:' },
-              { number: looserOps, text: 'Looser Ops:' }
+              { number: activeBots},
+              { number: winnerOps},
+              { number: looserOps}
             ]} />
         </Grid>
       </Grid>

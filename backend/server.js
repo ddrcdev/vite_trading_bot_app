@@ -1,7 +1,7 @@
 // backend/server.js
 
 const express = require('express');
-const { fetchDataFromDB,fetchBalanceFromDB } = require('./dbService'); // Importa fetchDataFromDB desde dbService
+const { fetchDataFromDB,fetchBalanceFromDB,fetchWinnerBot,fetchLooserBot } = require('./dbService'); // Importa fetchDataFromDB desde dbService
 
 const app = express();
 const port = 5000;
@@ -38,6 +38,26 @@ app.get('/api/get/balance', async (req, res) => {
 app.get('/api/get/active-bots', async (req, res) => {
   try {
     const data = await fetchBalanceFromDB(); // Llama a fetchDataFromDB para obtener los datos
+    res.json(data);
+  } catch (error) {
+    console.error('Error al obtener datos:', error);
+    res.status(500).json({ error: 'Error al obtener datos desde la base de datos' });
+  }
+});
+
+app.get('/api/get/winner-bot', async (req, res) => {
+  try {
+    const data = await fetchWinnerBot(); // Llama a fetchDataFromDB para obtener los datos
+    res.json(data);
+  } catch (error) {
+    console.error('Error al obtener datos:', error);
+    res.status(500).json({ error: 'Error al obtener datos desde la base de datos' });
+  }
+});
+
+app.get('/api/get/looser-bot', async (req, res) => {
+  try {
+    const data = await fetchLooserBot(); // Llama a fetchDataFromDB para obtener los datos
     res.json(data);
   } catch (error) {
     console.error('Error al obtener datos:', error);

@@ -7,15 +7,16 @@ import BotSelect from './BotSelect';
 
 export default function ResultsChart({ dataset, bots }) {
   const [dateRange, setDateRange] = useState([new Date(), new Date()]);
-  const [selectedOption, setSelectedOption] = useState([]);
-
+  const [dateRangeSlider, setDateRangeSlider] = useState([new Date(), new Date()]);
+  const [selectedOption, setSelectedOption] = useState(["all"]);
+  const [isReady, setIsReady] = useState(false);
   // Select bots to graphs
   let botNames = [];
   if (Array.isArray(bots) && bots.length > 0) {
     botNames = [...bots];
   }
   botNames.unshift("all"); // Agrega "all" al principio del array
-  
+
   const handleBotOptionChange = (event) => {
     const {
       target: { value },
@@ -29,108 +30,120 @@ export default function ResultsChart({ dataset, bots }) {
   // Convertir las fechas a objetos Date
   const formattedDataset = dataset.map(entry => ({
     date: new Date(entry['cdate']), // Suponiendo que 'cdate' es la clave de fecha
-    balance: parseFloat(entry['balance_final']), // Convertir el balance a un número
     profit: parseFloat(entry['profit']),
     bot: entry['bot']
   }));
 
-  // Filtrar el conjunto de datos según las opciones seleccionadas
-  const filteredDataset = selectedOption.includes('all')
-    ? formattedDataset
-    : formattedDataset.filter(entry => selectedOption.includes(entry.bot));
-
-  // Calcular el rango máximo y mínimo de fechas para el conjunto filtrado
-  const minDate = Math.min(...filteredDataset.map(entry => entry.date));
-  const maxDate = Math.max(...filteredDataset.map(entry => entry.date));
+  // Obtener un conjunto de fechas único para todos los bots
+  const allDates = [...new Set(formattedDataset.map(entry => entry.date))];
 
   useEffect(() => {
-    setDateRange([minDate, maxDate]);
-  }, [filteredDataset]);
+    // Calcular el rango máximo y mínimo de fechas para la opción "all"
+    const minDateAll = Math.min(...formattedDataset.map(entry => entry.date));
+    const maxDateAll = Math.max(...formattedDataset.map(entry => entry.date));
+    
+    setDateRange([minDateAll, maxDateAll]); // Establecer el rango inicial basado en la opción "all"
+    setDateRangeSlider([0, allDates.length - 1]); // Establecer el rango del slider en función de las fechas únicas
+    setIsReady(true);
+  }, []);
 
   // Función de cambio para el slider de fechas
   const handleDateChange = (event, newValue) => {
-    setDateRange(newValue);
+    const minDate = allDates[newValue[0]];
+    const maxDate = allDates[newValue[1]];
+    setDateRange([minDate, maxDate]);
+    setDateRangeSlider(newValue);
   };
+
+  // Función para calcular el valor acumulado de "profit" para un conjunto de datos
+  const accumulateProfit = (data) => {
+    let accumulatedProfit = 0;
+    return data.map(entry => {
+      accumulatedProfit += entry.profit;
+      return accumulatedProfit;
+    });
+  };
+
+  // Rellenar los valores faltantes con nulos para cada bot
+  const fillMissingValues = (data, allDates) => {
+    const filledData = [];
+    allDates.forEach(date => {
+      const entry = data.find(item => item.date.getTime() === date.getTime());
+      if (entry) {
+        filledData.push(entry);
+      } else {
+        filledData.push({ date: date, profit: null, bot: null });
+      }
+    });
+    return filledData;
+  };
+
 
   // Función para formatear las fechas en el gráfico
   const formatDate = (date) => {
     return format(new Date(date), 'dd/MM/yyyy'); // Formatear la fecha como 'dd/MM/yyyy'
   };
+  
+  // Definir series del gráfico
+  let series = [];
+  // Agregar series para cada bot seleccionado
+  selectedOption.forEach(bot => {
+    if (bot !== 'all') {
+      const filteredData = formattedDataset.filter(entry => entry.bot === bot);
+      const filledData = fillMissingValues(filteredData, allDates);
+      const botProfit = accumulateProfit(filledData); // Utiliza el valor acumulado de "profit" para el bot específico
 
-
-// Definir series del gráfico
-let series = [];
-
-// Crear un conjunto de fechas completo para todas las series
-const allDates = filteredDataset.map(entry => entry.date);
-
-if (selectedOption.includes('all')) {
-  // Si 'all' está seleccionado, agregar una serie que contenga todas las entradas del conjunto de datos sin filtrar
-  series.push({
-    id: 'all',
-    label: 'All',
-    data: formattedDataset.map(entry => entry.balance),
-    curve: "linear"
+      series.push({
+        id: bot,
+        label: bot,
+        data: botProfit,
+        curve: "linear",
+        connectNulls: true,
+      });
+    } else {
+    // Si 'all' está seleccionado, agregar una serie que contenga todas las entradas del conjunto de datos sin filtrar
+      series.push({
+      id: 'all',
+      label: 'All',
+      data: accumulateProfit(formattedDataset), // Utiliza el valor acumulado de "profit" para todas las entradas
+      curve: "linear"
+    });
+    }
   });
+
+  // Renderizar el gráfico
+  return (
+    <Box sx={{ width: '100%' }}>
+      <BotSelect
+        botNames={botNames}
+        selectedOption={selectedOption}
+        handleBotOptionChange={handleBotOptionChange} 
+      />
+      <LineChart
+        xAxis={[
+          {
+            id: 'Date',
+            data: allDates, // Usar las fechas únicas para todos los bots
+            scaleType: 'time',
+            tickFormatter: formatDate, // Utilizar la función de formateo de fechas
+          },
+        ]}
+        series={series}
+        height={350}
+        grid={{ vertical: true, horizontal: true }}
+        legend
+      />
+      {isReady && ( // Renderizar el slider solo cuando el componente está listo
+        <Slider
+          value={dateRangeSlider}
+          onChange={handleDateChange}
+          min={0}
+          max={allDates.length - 1} // Establecer el máximo como la longitud del array de fechas únicas
+          sx={{ maxWidth: '92%' }}
+          valueLabelDisplay='on'
+          valueLabelFormat={formatDate}
+        />
+      )}
+    </Box>
+  );
 }
-
-// Agregar series para cada bot seleccionado
-selectedOption.forEach(bot => {
-  if (bot !== 'all') {
-    const filteredData = formattedDataset.filter(entry => entry.bot === bot);
-    const botData = [];
-
-    // Rellenar los valores de la serie con null donde sea necesario
-    allDates.forEach(date => {
-      const entry = filteredData.find(item => item.date.getTime() === date.getTime());
-      if (entry) {
-        botData.push(entry.balance);
-      } else {
-        botData.push(null);
-      }
-    });
-
-    series.push({
-      id: bot,
-      label: bot,
-      data: botData,
-      curve: "linear",
-      connectNulls: true,
-    });
-  }
-});
-
-// Renderizar el gráfico
-return (
-  <Box sx={{ width: '100%' }}>
-    <BotSelect
-      botNames={botNames}
-      selectedOption={selectedOption}
-      handleBotOptionChange={handleBotOptionChange} 
-    />
-    <LineChart
-      xAxis={[
-        {
-          id: 'Date',
-          data: allDates, // Usar el conjunto completo de fechas
-          scaleType: 'time',
-          tickFormatter: formatDate, // Utilizar la función de formateo de fechas
-        },
-      ]}
-      series={series}
-      height={350}
-      grid={{ vertical: true, horizontal: true }}
-      legend
-    />
-    <Slider
-      value={dateRange}
-      onChange={handleDateChange}
-      min={minDate}
-      max={maxDate}
-      valueLabelDisplay="off"
-      sx={{ maxWidth: '92%' }}
-    />
-  </Box>
-);
-
-};

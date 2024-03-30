@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, Grid, Typography } from '@mui/material';
 
 function BotResumeCard({ mainNumber, numbers }) {
-  const text = ['Active Ops:','Winner Ops:','Looser Ops:'  ]
+  const text = ['Active Bots:','Winner Ops:','Looser Ops:'  ]
   return (
     <Card>
       <CardContent>

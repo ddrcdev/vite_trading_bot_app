@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  TextField,
-  MenuItem,
-} from "@mui/material";
+import {Grid, Card, CardContent, Typography, Button} from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CandlestickChart from "../components/Strategies/candleStickGraph";
 import StrategyForm from "../components/Strategies/StrategyForm";
 import StrategyMetricsCard from "../components/Cards/StrategyMetricsCard";
 import RevenueCard from "../components/Cards/RevenueCard";
+import OrdersTable from '../components/OrdersTable';
 
 import "../App.css";
 
@@ -45,6 +38,7 @@ function Strategies() {
   });
   const [showResult, setShowResult] = useState(false);
   const [marketKline, setMarketKLine] = useState({});
+  const [actions, setActions] = useState({});
 
   const toggleSecondCard = () => {
     setShowSecondCard(!showSecondCard);
@@ -123,9 +117,43 @@ function Strategies() {
         );
       }
     };
-
     fetchMarketKline();
   }, [strategyData]); // Ejecutar el efecto cuando cambie strategyData
+
+  // Load Strategy BackAnalysis
+  useEffect(() => {
+    // Cargar los datos del archivo JSON cuando el componente se monta
+    const makeBackAnalysisPy = async () => {
+      try {
+        // Realizar una solicitud POST al backend para ejecutar el script de Python
+        const response = await fetch(
+          "http://localhost:5000/api/post/strategy-backanalysis",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data: marketKline }),
+          }
+        );
+
+        const data = await response.json();
+
+        console.log(data);
+        // Deberia mostrar {'Test1':2}
+        setActions(data);
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+      }
+    };
+    // Llamar a la función para ejecutar el script de Python cuando el valor de marketKline cambie
+    if (
+      marketKline 
+    ) {
+      makeBackAnalysisPy();
+      console.log(actions);
+    }
+  }, [marketKline]);
 
   return (
     <div>
@@ -173,26 +201,47 @@ function Strategies() {
       </div>
 
       {showResult && (
-        <div className="grid-container">
-          <Grid container spacing={2}>
-            <Grid item xs={8}>
-              <CandlestickChart priceData={marketKline} />
+        <>
+          <div className="grid-container">
+            <Grid container spacing={2}>
+              <Grid item xs={8}>
+                <div className="chart-container">
+                  <CandlestickChart priceData={marketKline} />
+                </div>
+              </Grid>
+              <Grid item xs={4}>
+                <Grid container direction="column" spacing={2}>
+                  <Grid item>
+                    <div style={{ marginBottom: "2%" }}>
+                      <StrategyMetricsCard
+                        trades={{ total: 19, winner: 14, loser: 5 }}
+                        profit={14}
+                        deviation={3}
+                        time={1}
+                      />
+                    </div>
+                  </Grid>
+                  <Grid item>
+                    <RevenueCard
+                      revenue={{ sevenDays: 5, thirtyDays: -10, year: 20 }}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs={4}>
-              <div style={{ height: "50%" }}>
-                <StrategyMetricsCard
-                  trades={{ total: 19, winner: 14, loser: 5 }}
-                  profit={14}
-                  deviation={3}
-                  time={1}
-                />
-              </div>
-              <div style={{ height: "50%" }}>
-                <RevenueCard revenue={{ sevenDays: 5, thirtyDays: -10, year: 20 }} />
-              </div>
+          </div>
+          <div className="grid-container">
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <OrdersTable operations={actions} />
+                  </CardContent>
+                </Card>
+              </Grid>
             </Grid>
-          </Grid>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

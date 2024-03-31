@@ -1,6 +1,8 @@
 // backend/dbService.js
 
 const { Client } = require('pg');
+const fs = require('fs');
+const { PythonShell } = require('python-shell');
 
 // Función para obtener datos de la base de datos
 async function fetchDataFromDB() {
@@ -136,4 +138,48 @@ async function fetchLooserBot() {
 
 }
 
-module.exports = { fetchDataFromDB, fetchBalanceFromDB, fetchWinnerBot,fetchLooserBot };
+
+async function fetchBackAnalysis(klineData) {
+  return new Promise((resolve, reject) => {
+    // Serialize klineData to JSON
+    const jsonData = JSON.stringify(klineData);
+
+    // Write jsonData to a temporary file
+    const tempFilePath = 'Strategies/temp.json';
+    fs.writeFile(tempFilePath, jsonData, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      // Opciones para la ejecución del script de Python
+      const options = {
+        mode: 'json',
+        pythonPath: 'python', // Ruta al intérprete de Python (puedes cambiar esto si es necesario)
+        scriptPath: 'Strategies/', // Ruta al directorio que contiene el script de Python
+        args: [tempFilePath] // Pasar el archivo temporal como argumento
+      };
+
+      // Ejecutar el script de Python
+      PythonShell.run('Test.py', options, (err, result) => {
+        // Eliminar el archivo temporal después de ejecutar el script de Python
+        fs.unlink(tempFilePath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error('Error al eliminar el archivo temporal:', unlinkErr);
+          }
+        });
+
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  });
+}
+
+
+
+
+module.exports = { fetchDataFromDB, fetchBalanceFromDB, fetchWinnerBot,fetchLooserBot, fetchBackAnalysis };

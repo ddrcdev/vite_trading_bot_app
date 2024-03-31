@@ -2,33 +2,29 @@ import React, { useEffect, useRef } from 'react';
 import { createChart, CrosshairMode } from 'lightweight-charts';
 
 function CandleStickGraph({ priceData }) {
-    console.log(priceData)
     const chartContainerRef = useRef();
     const chart = useRef();
     const resizeObserver = useRef();
     
     // Convertir los datos de precio al formato adecuado para el gráfico
-    const formattedPriceData = priceData.map(record => ({
-        time: {year: new Date(record[0]).getFullYear(),
-            month: new Date(record[0]).getMonth(),
-            day: new Date(record[0]).getDate()
-        },
+    const formattedPriceData = Object.keys(priceData).length > 0 ? priceData.map(record => ({
+        time: record[0]/1000,
         open: parseFloat(record[1]), // Precio de apertura
         high: parseFloat(record[2]), // Precio más alto
         low: parseFloat(record[3]), // Precio más bajo
         close: parseFloat(record[4]), // Precio de cierre
         volume: parseFloat(record[5]) // Volumen
-    }));
-
-    console.log(formattedPriceData)
+    })) : [];
 
     useEffect(() => {
         chart.current = createChart(chartContainerRef.current, {
             width: chartContainerRef.current.clientWidth,
             height: chartContainerRef.current.clientHeight,
             layout: {
-                backgroundColor: '#171c28', // Cambio a un color de fondo oscuro
-                textColor: 'rgba(255, 255, 255, 0.9)',
+                background:{
+                    color:  '#485C7B'
+                }, // Cambio a un color de fondo oscuro
+                textColor: 'white',
             },
             grid: {
                 vertLines: {
@@ -41,14 +37,10 @@ function CandleStickGraph({ priceData }) {
             crosshair: {
                 mode: CrosshairMode.Normal,
             },
-            priceScale: {
-                borderColor: '#485c7b',
-                mode: 1, // Forzar la escala de precios en el lado derecho
-            },
             timeScale: {
-                borderColor: '#485c7b',
                 visible: true, // Mostrar la escala de tiempo
                 timeVisible: true, // Mostrar valores de tiempo en los ejes
+                secondsVisible: true
             },
         });
 
@@ -89,7 +81,7 @@ function CandleStickGraph({ priceData }) {
         };
     }, []);
 
-    return <div ref={chartContainerRef} style={{ width: '100%', height: '95%' }} />;
+    return <div ref={chartContainerRef} style={{ width: '100%', height: '100%' } } />;
 }
 
 export default CandleStickGraph;

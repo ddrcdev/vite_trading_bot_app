@@ -1,9 +1,12 @@
 // backend/server.js
 
 const express = require('express');
-const { fetchDataFromDB,fetchBalanceFromDB,fetchWinnerBot,fetchLooserBot } = require('./dbService'); // Importa fetchDataFromDB desde dbService
+const bodyParser = require('body-parser');
+
+const { fetchDataFromDB,fetchBalanceFromDB,fetchWinnerBot,fetchLooserBot, fetchBackAnalysis } = require('./dbService'); // Importa fetchDataFromDB desde dbService
 
 const app = express();
+app.use(bodyParser.json({ limit: '10mb' }));
 const port = 5000;
 
 // Middleware para habilitar CORS
@@ -14,6 +17,8 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
   next();
 });
+
+
 
 app.get('/api/get/trades', async (req, res) => {
   try {
@@ -62,6 +67,18 @@ app.get('/api/get/looser-bot', async (req, res) => {
   } catch (error) {
     console.error('Error al obtener datos:', error);
     res.status(500).json({ error: 'Error al obtener datos desde la base de datos' });
+  }
+});
+
+// Ruta para manejar la solicitud POST al script de Python
+app.post('/api/post/strategy-backanalysis', async (req, res) => {
+  try {
+    const data = await fetchBackAnalysis(req.body.data); // Llama a fetchDataFromDB para obtener los datos
+    res.json(data);
+    console.log(data)
+  } catch (error) {
+    console.error('Error al ejecutar el script de Python:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 

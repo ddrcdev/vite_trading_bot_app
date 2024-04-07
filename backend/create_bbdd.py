@@ -155,6 +155,17 @@ def close_trade_trigger(cur):
     """)
 
 
+def intervals_data_table(cur):
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS token_data (
+            symbol CHAR NOT NULL,
+            interval CHAR NOT NULL,
+            initial_date TIMESTAMP NOT NULL,
+            final_date TIMESTAMP NOT NULL
+        );
+    """)
+
+
 
 def main():
     # Conexión a la base de datos
@@ -170,6 +181,8 @@ def main():
     trades_table(cur)
 
     balance_table(cur)
+
+    intervals_data_table(cur)
 
     close_trade_trigger(cur)
 

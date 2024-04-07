@@ -145,7 +145,7 @@ async function fetchBackAnalysis(klineData) {
     const jsonData = JSON.stringify(klineData);
 
     // Write jsonData to a temporary file
-    const tempFilePath = 'Strategies/temp.json';
+    const tempFilePath = './Strategies/temp.json';
     fs.writeFile(tempFilePath, jsonData, (err) => {
       if (err) {
         reject(err);
@@ -156,9 +156,10 @@ async function fetchBackAnalysis(klineData) {
       const options = {
         mode: 'json',
         pythonPath: 'python', // Ruta al intérprete de Python (puedes cambiar esto si es necesario)
-        scriptPath: 'Strategies/', // Ruta al directorio que contiene el script de Python
+        scriptPath: './Strategies/', // Ruta al directorio que contiene el script de Python
         args: [tempFilePath] // Pasar el archivo temporal como argumento
       };
+
 
       // Ejecutar el script de Python
       PythonShell.run('Test.py', options, (err, result) => {
@@ -180,6 +181,30 @@ async function fetchBackAnalysis(klineData) {
 }
 
 
+async function fetchTokenDataAvailable() {
+  const client = new Client({
+    host: "localhost",
+    user: "postgres",
+    port: 5433, // Cambia este puerto si es diferente en tu configuración
+    password: "1234",
+    database: "TradesData"
+  });
+
+  const tokendata_query = ` SELECT * FROM token_data; `;
+  try {
+    await client.connect()
+    const tokenData = await client.query(tokendata_query);
+    return tokenData.rows  
+
+  }  catch (error) {
+    console.error('Error al obtener datos:', error);
+    throw error;
+  } finally {
+    await client.end();
+  }
+
+}
 
 
-module.exports = { fetchDataFromDB, fetchBalanceFromDB, fetchWinnerBot,fetchLooserBot, fetchBackAnalysis };
+
+module.exports = { fetchDataFromDB, fetchBalanceFromDB, fetchWinnerBot,fetchLooserBot, fetchBackAnalysis, fetchTokenDataAvailable };

@@ -14,7 +14,7 @@ function StrategyMetricsCard({ trades, profit, deviation, time }) {
         <Grid container spacing={2}>
           <Grid item xs={4}>
             <Typography variant="body1" textAlign="center">
-              <span>Nº trades:</span>
+              Nº trades:
             </Typography>
           </Grid>
           <Grid item xs={4}>
@@ -31,11 +31,9 @@ function StrategyMetricsCard({ trades, profit, deviation, time }) {
         <Grid container spacing={3}>
           <Grid item xs={4}>
             <Typography variant="body1" textAlign="center">
-              <div>
                 <span style={{ color: 'black'}}>{trades.total} / </span>
                 <span style={{ color: 'green'}}>{trades.winner}</span>{' / '}
                 <span style={{ color: 'red' }}>{trades.loser}</span>
-              </div>
             </Typography>
           </Grid>
           <Grid item xs={4}>

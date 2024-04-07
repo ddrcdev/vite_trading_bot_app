@@ -87,43 +87,52 @@ function Strategies() {
 
   // Load k-line from selected Market
   useEffect(() => {
-    const fetchMarketKline = async () => {
+    const fetchTokenData = async () => {
       try {
-        if (
-          strategyData.nombre !== "" &&
-          strategyData.mercado !== "" &&
-          strategyData.intervalo !== "" &&
-          strategyData.tipo !== ""
-        ) {
-          // Construir la solicitud para obtener los datos de Kline/Candlestick
-          const symbol = strategyData.mercado;
-          const interval = strategyData.intervalo;
-          // Aquí puedes ajustar startTime, endTime y timeZone según tus necesidades
-          const response = await fetch(
-            `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=1000`
+          const response = await fetch("api/get/token_data");
+          const tokenData = await response.json();
+          console.log(tokenData)
+          
+          if (tokenData.length === 0) {
+            fetchMarketKline();
+            throw new Error("La tabla tokenData está vacía");
+          } else {
+            // Verificar si tenemos el símbolo y el intervalo seleccionado
+            const hasSelectedTokenData = tokenData.some(item => 
+              item.symbol === strategyData.mercado && 
+              item.interval === strategyData.intervalo
           );
-
-          if (!response.ok) {
-            throw new Error("Error al obtener los datos de Kline/Candlestick");
+          // Si tenemos el tokenData seleccionado, no necesitamos hacer otra solicitud
+          if (!hasSelectedTokenData) {
+            fetchMarketKline();
           }
-
-          const data = await response.json();
-          setMarketKLine(data);
-        }
+        } 
       } catch (error) {
-        console.error(
-          "Error al obtener los datos de Kline/Candlestick:",
-          error
-        );
+        console.error("Error al obtener los datos del token:", error);
       }
     };
-    fetchMarketKline();
+    const fetchMarketKline = async () => {
+      try {
+        const symbol = strategyData.mercado;
+        const interval = strategyData.intervalo;
+        const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=1000`);
+        if (!response.ok) {
+          throw new Error("Error al obtener los datos de Kline/Candlestick");
+        }
+        const data = await response.json();
+        setMarketKLine(data);
+      } catch (error) {
+        console.error("Error al obtener los datos de Kline/Candlestick:", error);
+      }
+    };
+    fetchTokenData();
   }, [strategyData]); // Ejecutar el efecto cuando cambie strategyData
 
   // Load Strategy BackAnalysis
   useEffect(() => {
     // Cargar los datos del archivo JSON cuando el componente se monta
     const makeBackAnalysisPy = async () => {
+      
       try {
         // Realizar una solicitud POST al backend para ejecutar el script de Python
         const response = await fetch(
@@ -136,12 +145,13 @@ function Strategies() {
             body: JSON.stringify({ data: marketKline }),
           }
         );
+        console.log(response)
 
         const data = await response.json();
 
-        console.log(data);
-        // Deberia mostrar {'Test1':2}
-        setActions(data);
+        setActions(data); // Establecer el estado dentro de la función
+        console.log(actions);
+
       } catch (error) {
         console.error("Error al obtener datos:", error);
       }
@@ -151,7 +161,6 @@ function Strategies() {
       marketKline 
     ) {
       makeBackAnalysisPy();
-      console.log(actions);
     }
   }, [marketKline]);
 
